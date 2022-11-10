@@ -1,8 +1,12 @@
+import { AppBar } from 'components/AppBar/AppBar';
+import { Outlet } from 'react-router-dom';
+import { LayoutBox } from './Layout .styled';
+
 export const Layout = () => {
   return (
-    <div>
-      <div>Appbar</div>
-      <div>Contents</div>
-    </div>
+    <LayoutBox>
+      <AppBar />
+      <Outlet />
+    </LayoutBox>
   );
 };
