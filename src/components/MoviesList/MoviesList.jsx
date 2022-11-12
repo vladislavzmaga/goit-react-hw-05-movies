@@ -1,9 +1,16 @@
 import { fetchMovieByTrending } from 'components/API/API';
+import {
+  MoviesWrapper,
+  MovieList,
+  MoviesItem,
+  MoviesNavLink,
+} from 'components/Movies/Movies.styled';
 import { useEffect, useState } from 'react';
-import { NavLink } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 
-export const MoviesList = () => {
+const MoviesList = () => {
   const [movies, setMovies] = useState([]);
+  const location = useLocation();
 
   useEffect(() => {
     fetchMovieByTrending().then(respounse => {
@@ -17,20 +24,25 @@ export const MoviesList = () => {
   }
 
   return (
-    <div>
+    <MoviesWrapper>
       {movies.length > 0 && (
-        <ul>
+        <MovieList>
           {movies.map(movie => {
             return (
-              <li key={movie.id}>
-                <NavLink to={`/movies/${movie.id}`}>
+              <MoviesItem key={movie.id}>
+                <MoviesNavLink
+                  to={`/movies/${movie.id}`}
+                  state={{ from: location }}
+                >
                   {movie.title || movie.name}
-                </NavLink>
-              </li>
+                </MoviesNavLink>
+              </MoviesItem>
             );
           })}
-        </ul>
+        </MovieList>
       )}
-    </div>
+    </MoviesWrapper>
   );
 };
+
+export default MoviesList;

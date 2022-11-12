@@ -1,52 +1,67 @@
 import { fetchMovieByName } from 'components/API/API';
 import { useEffect, useState } from 'react';
-import { NavLink } from 'react-router-dom';
+import { useLocation, useSearchParams } from 'react-router-dom';
+import {
+  MoviesWrapper,
+  MoviesInput,
+  MoviesButton,
+  MovieList,
+  MoviesItem,
+  MoviesNavLink,
+} from './Movies.styled';
 
-export const Movies = () => {
-  const [value, setValue] = useState('');
-  const [movies, setMovies] = useState([]);
+const Movies = () => {
+  const [movies, setMovies] = useState(null);
+  const [error, setError] = useState(null);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const currentValue = searchParams.get('query');
+  const location = useLocation();
 
   const handleSubmit = evt => {
     evt.preventDefault();
-    setValue(evt.target.name.value);
+    const value = evt.target.name.value;
+    setSearchParams({ query: value });
   };
 
   useEffect(() => {
-    if (value === '') {
+    if (!currentValue) {
       return;
     }
-    fetchMovieByName(value).then(respounse => {
+    setError(null);
+    fetchMovieByName(currentValue).then(respounse => {
+      if (respounse.data.total_results === 0) {
+        setError('Nothing was found according to your request!!');
+      }
       const result = respounse.data.results;
       setMovies(result);
     });
-  }, [value]);
-
-  if (movies === []) {
-    return;
-  }
+  }, [currentValue]);
 
   return (
-    <div>
+    <MoviesWrapper>
       <h1>Enter the name of the movie!</h1>
       <form onSubmit={handleSubmit}>
-        <input type="text" name="name" />
-        <button type="submit">submit</button>
+        <MoviesInput type="text" name="name" />
+        <MoviesButton type="submit">Search</MoviesButton>
       </form>
       <div>
-        {movies.length > 0 && (
-          <ul>
+        {error && <h2>{error}</h2>}
+        {movies && (
+          <MovieList>
             {movies.map(movie => {
               return (
-                <li key={movie.id}>
-                  <NavLink to={`/movies/${movie.id}`}>
+                <MoviesItem key={movie.id}>
+                  <MoviesNavLink to={`${movie.id}`} state={{ from: location }}>
                     {movie.title || movie.name}
-                  </NavLink>
-                </li>
+                  </MoviesNavLink>
+                </MoviesItem>
               );
             })}
-          </ul>
+          </MovieList>
         )}
       </div>
-    </div>
+    </MoviesWrapper>
   );
 };
+
+export default Movies;

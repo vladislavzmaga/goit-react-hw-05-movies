@@ -1,11 +1,25 @@
 import { fetchMovieById } from 'components/API/API';
-import { useEffect, useState } from 'react';
-import { NavLink, Outlet, useParams } from 'react-router-dom';
+import { MoviesNavLink } from 'components/Movies/Movies.styled';
+import { useEffect, useState, Suspense, useRef } from 'react';
+import { Outlet, useLocation, useParams } from 'react-router-dom';
+import {
+  MoviesDetailsWrapper,
+  MoviesDetailsButton,
+  MoviesDetailsMainWrapper,
+  MoviesInformationBox,
+  MoviesDetailsList,
+  MoviesAditionalInformation,
+  MoviesAdditionalInformationList,
+  MoviesAdditionalInformationItem,
+  MoviesDetailsGenres,
+} from './MoviesDetails.styled';
 
-export const MoviesDetails = () => {
+const MoviesDetails = () => {
   const params = useParams();
   const [movie, setMovie] = useState(null);
-  const [error, setError] = useState('');
+  const [error, setError] = useState(null);
+  const location = useLocation();
+  const nav = useRef(location);
   const IMG_REGUEST = 'https://image.tmdb.org/t/p/w342';
 
   useEffect(() => {
@@ -19,56 +33,61 @@ export const MoviesDetails = () => {
       });
   }, [params.movieId]);
 
-  console.log(error);
-
-  if (!movie) {
-    return;
-  }
-
   return (
-    <div>
-      {error.length > 0 && <h1>No additional information yet!</h1>}
-      <button type="button">Go Back!</button>
-      <div>
-        <div>
-          <img
-            src={IMG_REGUEST + movie.poster_path}
-            alt={movie.title || movie.name}
-          />
-        </div>
-        <div>
-          <ul>
-            <li>
-              <h2>{movie.title || movie.name}</h2>
-              <p>User score {movie.vote_average * 10} %</p>
-            </li>
-            <li>
-              <h2>Overview</h2>
-              <p>{movie.overview}</p>
-            </li>
-            <li>
-              <h2>Genres</h2>
-              <p>
-                {movie.genres.map(genre => {
-                  return <span key={genre.id}>{genre.name}</span>;
-                })}
-              </p>
-            </li>
-          </ul>
-        </div>
-      </div>
-      <div>
-        <p>Additional information</p>
-        <ul>
-          <li>
-            <NavLink to={'cast'}>Cast</NavLink>
-          </li>
-          <li>
-            <NavLink to={'reviews'}>Reviews</NavLink>
-          </li>
-        </ul>
-      </div>
-      <Outlet />
-    </div>
+    <MoviesDetailsMainWrapper>
+      <MoviesDetailsButton to={nav.current.state?.from ?? '/movies'}>
+        Go Back!
+      </MoviesDetailsButton>
+      {error && <h1>There is no detailed information about the film!!!</h1>}
+      {movie && (
+        <MoviesInformationBox>
+          <MoviesDetailsWrapper>
+            <div>
+              <img
+                src={IMG_REGUEST + movie.poster_path}
+                alt={movie.title || movie.name}
+              />
+            </div>
+            <div>
+              <MoviesDetailsList>
+                <li>
+                  <h2>{movie.title || movie.name}</h2>
+                  <p>User score {(movie.vote_average * 10).toFixed()} %</p>
+                </li>
+                <li>
+                  <h2>Overview</h2>
+                  <p>{movie.overview}</p>
+                </li>
+                <li>
+                  <h2>Genres</h2>
+                  <MoviesDetailsGenres>
+                    {movie.genres.map(genre => {
+                      return <li key={genre.id}>{genre.name}</li>;
+                    })}
+                  </MoviesDetailsGenres>
+                </li>
+              </MoviesDetailsList>
+            </div>
+          </MoviesDetailsWrapper>
+          <MoviesAditionalInformation>
+            <h3>Additional information</h3>
+            <MoviesAdditionalInformationList>
+              <MoviesAdditionalInformationItem>
+                <MoviesNavLink to={'cast'}>Cast</MoviesNavLink>
+              </MoviesAdditionalInformationItem>
+              <MoviesAdditionalInformationItem>
+                <MoviesNavLink to={'reviews'}>Reviews</MoviesNavLink>
+              </MoviesAdditionalInformationItem>
+            </MoviesAdditionalInformationList>
+          </MoviesAditionalInformation>
+        </MoviesInformationBox>
+      )}
+
+      <Suspense fallback={null}>
+        <Outlet />
+      </Suspense>
+    </MoviesDetailsMainWrapper>
   );
 };
+
+export default MoviesDetails;

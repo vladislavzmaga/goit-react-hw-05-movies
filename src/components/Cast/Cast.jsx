@@ -1,8 +1,15 @@
 import { fetchMovieCast } from 'components/API/API';
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
+import {
+  CastList,
+  CastItem,
+  CastImg,
+  CastInfoWrapper,
+  CastInfoTitle,
+} from './Cast.styled';
 
-export const Cast = () => {
+const Cast = () => {
   const params = useParams();
   const [actors, setActors] = useState(null);
   const IMG_REGUEST = 'https://image.tmdb.org/t/p/w500';
@@ -20,21 +27,32 @@ export const Cast = () => {
 
   return (
     <div>
-      <ul>
+      <CastList>
         {actors.map(actor => {
           return (
-            <li key={actor.id}>
+            <CastItem key={actor.id}>
               <div>
-                <img src={IMG_REGUEST + actor.profile_path} alt={actor.name} />
+                <CastImg
+                  src={IMG_REGUEST + actor.profile_path}
+                  alt={actor.name}
+                />
               </div>
               <div>
-                <p>Actor: {actor.name}</p>
-                <span>Сharacter: {actor.character}</span>
+                <CastInfoWrapper>
+                  <CastInfoTitle>Actor:</CastInfoTitle>
+                  <span>{actor.name}.</span>
+                </CastInfoWrapper>
+                <CastInfoWrapper>
+                  <CastInfoTitle>Сharacter:</CastInfoTitle>
+                  <span>{actor.character}.</span>
+                </CastInfoWrapper>
               </div>
-            </li>
+            </CastItem>
           );
         })}
-      </ul>
+      </CastList>
     </div>
   );
 };
+
+export default Cast;
